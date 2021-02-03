@@ -12,5 +12,12 @@ namespace DSPMod
         {
             Harmony.CreateAndPatchAll(typeof(ModMain));
         }
+
+        [HarmonyPatch(typeof(StarGen), "SetStarAge")]
+        [HarmonyPostfix]
+        static void IncreaseLuminosity(ref StarData star)
+        {
+            star.luminosity *= 1000;
+        }
     }
 }
