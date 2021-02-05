@@ -17,7 +17,8 @@ namespace DSPMod
         [HarmonyPostfix]
         static void IncreaseLuminosity(ref StarData star)
         {
-            star.luminosity *= 1000;
+            if (star.spectr >= ESpectrType.O)
+                star.luminosity *= 1000;
         }
     }
 }
