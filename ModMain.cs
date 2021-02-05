@@ -12,5 +12,17 @@ namespace DSPMod
         {
             Harmony.CreateAndPatchAll(typeof(ModMain));
         }
+
+        [HarmonyPatch(typeof(MechaDroneLogic), "UpdateDrones")]
+        [HarmonyPrefix]
+        static void AlwaysWork(MechaDroneLogic __instance)
+        {
+            var drones = __instance.player.mecha.drones;
+            for (int i = 0; i < drones.Length; i++)
+            {
+                if (drones[i].movement < 2)
+                    drones[i].movement = 2;
+            }
+        }
     }
 }
