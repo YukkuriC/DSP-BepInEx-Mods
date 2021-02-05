@@ -24,5 +24,12 @@ namespace DSPMod
                     drones[i].movement = 2;
             }
         }
+
+        [HarmonyPatch(typeof(MechaDrone), "Update")]
+        [HarmonyPrefix]
+        static void SpeedUp(ref float dt)
+        {
+            dt *= 5;
+        }
     }
 }
