@@ -53,12 +53,13 @@ namespace DSPMod
                 var bestAssembler = default(AssemblerComponent);
                 bestAssembler.speed = -1;
                 foreach (var ass in assemblers)
-                    if (ass.recipeType == ERecipeType.None &&
+                    if (ass.recipeType == ERecipeType.Assemble &&
                         ass.speed > bestAssembler.speed) bestAssembler = ass;
                 if (bestAssembler.speed != -1)
                     for (int i = 0; i < assemblers.Length; i++)
                     {
-                        if (assemblers[i].speed < bestAssembler.speed)
+                        if (assemblers[i].recipeType == ERecipeType.Assemble &&
+                            assemblers[i].speed < bestAssembler.speed)
                         {
                             assemblers[i].speed = bestAssembler.speed;
                             self.SyncEntity(assemblers[i].entityId, bestAssembler.entityId);
