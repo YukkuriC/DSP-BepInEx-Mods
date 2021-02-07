@@ -4,6 +4,6 @@
     {
         const string UID = "yukkuric.dsp.bruteup";
         const string NAME = "Brute Upgrade";
-        const string VERSION = "1.0.1.0";
+        const string VERSION = "1.0.2.0";
     }
 }

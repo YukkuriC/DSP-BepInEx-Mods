@@ -53,12 +53,12 @@ namespace DSPMod
                 var bestAssembler = default(AssemblerComponent);
                 bestAssembler.speed = -1;
                 foreach (var ass in assemblers)
-                    if (ass.recipeType == ERecipeType.Assemble &&
+                    if (self.GetRecipeType(ass.entityId) == ERecipeType.Assemble &&
                         ass.speed > bestAssembler.speed) bestAssembler = ass;
                 if (bestAssembler.speed != -1)
                     for (int i = 0; i < assemblers.Length; i++)
                     {
-                        if (assemblers[i].recipeType == ERecipeType.Assemble &&
+                        if (self.GetRecipeType(assemblers[i].entityId) == ERecipeType.Assemble &&
                             assemblers[i].speed < bestAssembler.speed)
                         {
                             assemblers[i].speed = bestAssembler.speed;
@@ -100,6 +100,14 @@ namespace DSPMod
 
     public static class Helper
     {
+        public static ERecipeType GetRecipeType(this PlanetFactory self, int idx)
+        {
+            var entity = self.entityPool[idx];
+            var proto = LDB.items.Select(entity.protoId);
+            if (proto == null || proto.prefabDesc == null) return ERecipeType.None;
+            return proto.prefabDesc.assemblerRecipeType;
+        }
+
         public static void SyncEntity(this PlanetFactory self, int idx, int refId)
         {
             // 同步模型
