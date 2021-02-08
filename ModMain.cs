@@ -50,6 +50,10 @@ namespace DSPMod
             var assemblers = self.factorySystem.assemblerPool;
             if (assemblers.Length > 0)
             {
+                // 修复错乱制造机
+                self.FixAssemblers();
+
+                // 寻找最优制造机并替换
                 var bestAssembler = default(AssemblerComponent);
                 bestAssembler.speed = -1;
                 foreach (var ass in assemblers)
@@ -109,19 +113,66 @@ namespace DSPMod
         }
 
         public static void SyncEntity(this PlanetFactory self, int idx, int refId)
+                        => self.SyncEntity(idx, LDB.items.Select(self.entityPool[refId].protoId));
+
+        public static void SyncEntity(this PlanetFactory self, int idx, ItemProto proto)
         {
+            var prefab = proto.prefabDesc;
             // 同步模型
-            self.entityPool[idx].modelIndex = self.entityPool[refId].modelIndex;
-            self.entityPool[idx].protoId = self.entityPool[refId].protoId;
+            self.entityPool[idx].modelIndex = (short)prefab.modelIndex;
+            self.entityPool[idx].protoId = (short)proto.ID;
             // 同步耗电
-            int curPower = self.entityPool[idx].powerConId,
-                refPower = self.entityPool[refId].powerConId;
-            if (curPower > 0 && refPower > 0)
+            int curPower = self.entityPool[idx].powerConId;
+            if (curPower > 0)
             {
                 var powers = self.powerSystem.consumerPool;
-                var refPowerCon = powers[refPower];
-                powers[curPower].idleEnergyPerTick = refPowerCon.idleEnergyPerTick;
-                powers[curPower].workEnergyPerTick = refPowerCon.workEnergyPerTick;
+                powers[curPower].idleEnergyPerTick = prefab.idleEnergyPerTick;
+                powers[curPower].workEnergyPerTick = prefab.workEnergyPerTick;
+            }
+        }
+    }
+
+    public static class SaveFixer
+    {
+        static Dictionary<ERecipeType, ItemProto> mapper;
+
+        public static void InitMapper()
+        {
+            mapper = new Dictionary<ERecipeType, ItemProto>();
+            foreach (var proto in LDB.items.dataArray)
+            {
+                if (proto == null || proto.prefabDesc == null) continue;
+                var prefab = proto.prefabDesc;
+                var recipe = prefab.assemblerRecipeType;
+                if (recipe == ERecipeType.None) continue;
+
+                bool toChoose = true;
+                if (mapper.ContainsKey(recipe))
+                {
+                    var curr = mapper[recipe];
+                    if (curr.prefabDesc.assemblerSpeed < prefab.assemblerSpeed)
+                        toChoose = false;
+                }
+                if (toChoose) mapper[recipe] = proto;
+            }
+        }
+
+        public static void FixAssemblers(this PlanetFactory self)
+        {
+            if (mapper == null) InitMapper();
+            var assemblers = self.factorySystem.assemblerPool;
+            for (int i = 0; i < assemblers.Length; i++)
+            {
+                var eid = assemblers[i].entityId;
+                var shouldRecipe = assemblers[i].recipeType; // 错乱前保有配方为需求类型
+                var currRecipe = self.GetRecipeType(eid);    // 原型配方为当前类型
+                if (shouldRecipe == ERecipeType.None
+                 || currRecipe == ERecipeType.None
+                 || shouldRecipe == currRecipe) continue;
+                // 修复建筑
+                var targetProto = mapper[shouldRecipe];
+                assemblers[i].speed = targetProto.prefabDesc.assemblerSpeed;
+                self.SyncEntity(eid, targetProto);
             }
         }
     }
