@@ -52,6 +52,7 @@ namespace DSPMod
             {
                 // 修复错乱制造机
                 self.FixAssemblers();
+                self.FixGhosts();
 
                 // 寻找最优制造机并替换
                 var bestAssembler = default(AssemblerComponent);
@@ -173,6 +174,20 @@ namespace DSPMod
                 var targetProto = mapper[shouldRecipe];
                 assemblers[i].speed = targetProto.prefabDesc.assemblerSpeed;
                 self.SyncEntity(eid, targetProto);
+            }
+        }
+
+        public static void FixGhosts(this PlanetFactory self)
+        {
+            if (mapper == null) InitMapper();
+            var assemblers = self.factorySystem.assemblerPool;
+            for (int i = 0; i < assemblers.Length; i++)
+            {
+                var eid = assemblers[i].entityId;
+                if (self.entityPool[eid].modelIndex == 0) // 模型缺失
+                {
+                    self.RemoveEntityWithComponents(eid);
+                }
             }
         }
     }
