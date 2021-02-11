@@ -85,6 +85,7 @@ namespace DSPMod
         // 协程传送
         static IEnumerator WarpFromGround(Player plr, VectorLF3 target)
         {
+            var oldStar = GameMain.localStar;
             // 从地面起飞
             if (!plr.sailing)
             {
@@ -99,6 +100,16 @@ namespace DSPMod
             // 大小校正
             yield return new WaitForSeconds(0.1f);
             plr.transform.localScale = Vector3.one;
+
+            // 清除原星系恒星
+            var newStar = GameMain.localStar;
+            if (oldStar != null && oldStar != newStar)
+            {
+                var starObj = GameMain.universeSimulator.FindStarSimulator(oldStar);
+                starObj.massRenderer.gameObject.SetActive(false);
+                starObj.atmosRenderer.gameObject.SetActive(false);
+                starObj.effect.gameObject.SetActive(false);
+            }
         }
     }
 }
