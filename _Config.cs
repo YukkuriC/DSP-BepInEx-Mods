@@ -4,6 +4,6 @@
     {
         const string UID = "yukkuric.dsp.fasttravel";
         const string NAME = "Starmap Warp";
-        const string VERSION = "1.0.2.0";
+        const string VERSION = "1.0.3.0";
     }
 }

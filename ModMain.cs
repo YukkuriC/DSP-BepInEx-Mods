@@ -46,11 +46,11 @@ namespace DSPMod
         }
 
         [HarmonyPostfix, HarmonyPatch(typeof(UIStarmap), "UpdateCursorView")]
-        static void WarpTip(UIStarmap __instance)
+        static void WarpTip(UIStarmap __instance, RectTransform ___cursorViewTrans, Text ___cursorViewText)
         {
             var self = __instance;
-            var go = Traverse.Create(self).Field<RectTransform>("cursorViewTrans").Value;
-            var text = Traverse.Create(self).Field<Text>("cursorViewText").Value;
+            var go = ___cursorViewTrans;
+            var text = ___cursorViewText;
 
             if (!go.gameObject.activeSelf) return;
 
@@ -86,16 +86,12 @@ namespace DSPMod
         static IEnumerator WarpFromGround(Player plr, VectorLF3 target)
         {
             var oldStar = GameMain.localStar;
-            // 从地面起飞
-            if (!plr.sailing)
-            {
-                plr.movementState = EMovementState.Sail;
-                plr.warpState = 1; // 鸽子扭脖子螺旋桨.gif
-                var dir = (target - plr.uPosition).normalized;
-                plr.uPosition = GameMain.localPlanet.uPosition + dir * (GameMain.localPlanet.realRadius * 1.5f);
-                yield return new WaitForSeconds(0.1f);
-            }
-            plr.uPosition = target; // 写入坐标
+
+            // 暴力挪transform
+            plr.uPosition = target;
+            plr.transform.position = target;
+            GameMain.data.DetermineLocalPlanet();
+            GameMain.data.DetermineRelative();
 
             // 大小校正
             yield return new WaitForSeconds(0.1f);
