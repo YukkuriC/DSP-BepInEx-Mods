@@ -20,15 +20,21 @@ namespace DSPMod
         public static void AutoUpgrade(PlanetFactory __instance)
         {
             var self = __instance;
+            UpgradeAssemblers(self);
+            UpgradeBelts(self);
+            UpgradeInserters(self);
+        }
 
-            // 抓手升级
+        // 抓手升级
+        static void UpgradeInserters(PlanetFactory self)
+        {
             var inserters = self.factorySystem.inserterPool;
             if (inserters.Length > 0)
             {
                 var bestInserter = default(InserterComponent);
                 bestInserter.stt = 1919810;
                 foreach (var ins in inserters)
-                    if (ins.stt > 0 && ins.stt < bestInserter.stt)
+                    if (self.Exists(ins.entityId) && ins.stt > 0 && ins.stt < bestInserter.stt)
                     {
                         bestInserter = ins;
                     }
@@ -45,41 +51,18 @@ namespace DSPMod
                         }
                     }
             }
+        }
 
-            // 制造机
-            var assemblers = self.factorySystem.assemblerPool;
-            if (assemblers.Length > 0)
-            {
-                // 修复错乱制造机
-                self.FixAssemblers();
-                self.FixGhosts();
-
-                // 寻找最优制造机并替换
-                var bestAssembler = default(AssemblerComponent);
-                bestAssembler.speed = -1;
-                foreach (var ass in assemblers)
-                    if (self.GetRecipeType(ass.entityId) == ERecipeType.Assemble &&
-                        ass.speed > bestAssembler.speed) bestAssembler = ass;
-                if (bestAssembler.speed != -1)
-                    for (int i = 0; i < assemblers.Length; i++)
-                    {
-                        if (self.GetRecipeType(assemblers[i].entityId) == ERecipeType.Assemble &&
-                            assemblers[i].speed < bestAssembler.speed)
-                        {
-                            assemblers[i].speed = bestAssembler.speed;
-                            self.SyncEntity(assemblers[i].entityId, bestAssembler.entityId);
-                        }
-                    }
-            }
-
-            // 传送带
+        // 传送带
+        static void UpgradeBelts(PlanetFactory self)
+        {
             var belts = self.cargoTraffic.beltPool;
             if (belts.Length > 0)
             {
                 var bestBelt = default(BeltComponent);
                 bestBelt.speed = -1;
                 foreach (var bel in belts)
-                    if (bel.speed > bestBelt.speed) bestBelt = bel;
+                    if (self.Exists(bel.entityId) && bel.speed > bestBelt.speed) bestBelt = bel;
                 if (bestBelt.speed != -1)
                 {
                     for (int i = 0; i < belts.Length; i++)
@@ -99,6 +82,36 @@ namespace DSPMod
                                 path.chunks[i] = bestBelt.speed;
                     }
                 }
+            }
+        }
+
+        // 制造机
+        static void UpgradeAssemblers(PlanetFactory self)
+        {
+            var assemblers = self.factorySystem.assemblerPool;
+            if (assemblers.Length > 0)
+            {
+                // 修复错乱制造机
+                self.FixAssemblers();
+                self.FixGhosts();
+
+                // 寻找最优制造机并替换
+                var bestAssembler = default(AssemblerComponent);
+                bestAssembler.speed = -1;
+                foreach (var ass in assemblers)
+                    if (self.Exists(ass.entityId) &&
+                        self.GetRecipeType(ass.entityId) == ERecipeType.Assemble &&
+                        ass.speed > bestAssembler.speed) bestAssembler = ass;
+                if (bestAssembler.speed != -1)
+                    for (int i = 0; i < assemblers.Length; i++)
+                    {
+                        if (self.GetRecipeType(assemblers[i].entityId) == ERecipeType.Assemble &&
+                            assemblers[i].speed < bestAssembler.speed)
+                        {
+                            assemblers[i].speed = bestAssembler.speed;
+                            self.SyncEntity(assemblers[i].entityId, bestAssembler.entityId);
+                        }
+                    }
             }
         }
     }
@@ -136,6 +149,8 @@ namespace DSPMod
     public static class SaveFixer
     {
         static Dictionary<ERecipeType, ItemProto> mapper;
+
+        public static bool Exists(this PlanetFactory self, int eid) => eid > 0 && self.entityPool[eid].id == eid;
 
         public static void InitMapper()
         {
