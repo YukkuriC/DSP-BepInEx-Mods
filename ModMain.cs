@@ -1,4 +1,4 @@
-﻿using System;
+﻿using UnityEngine;
 using BepInEx;
 using HarmonyLib;
 
@@ -29,7 +29,8 @@ namespace DSPMod
         [HarmonyPrefix]
         static void SpeedUp(ref float dt)
         {
-            dt *= 5;
+            //dt *= 5;
+            dt *= 10 * Random.value;
         }
     }
 }
