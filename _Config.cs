@@ -4,6 +4,6 @@
     {
         const string UID = "yukkuric.dsp.scattershot";
         const string NAME = "ScatterShot";
-        const string VERSION = "1.0.0.0";
+        const string VERSION = "1.0.1.0";
     }
 }
