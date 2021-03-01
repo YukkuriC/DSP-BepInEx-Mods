@@ -118,6 +118,8 @@ namespace DSPMod
 
     public static class Helper
     {
+        public static bool Exists(this PlanetFactory self, int eid) => eid > 0 && self.entityPool[eid].id == eid && self.entityPool[eid].protoId > 0;
+
         public static ERecipeType GetRecipeType(this PlanetFactory self, int idx)
         {
             var entity = self.entityPool[idx];
@@ -149,8 +151,6 @@ namespace DSPMod
     public static class SaveFixer
     {
         static Dictionary<ERecipeType, ItemProto> mapper;
-
-        public static bool Exists(this PlanetFactory self, int eid) => eid > 0 && self.entityPool[eid].id == eid;
 
         public static void InitMapper()
         {
