@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using BepInEx;
 using HarmonyLib;
 
@@ -11,6 +10,7 @@ namespace DSPMod
     {
         void Start()
         {
+            CFG.Init();
             Harmony.CreateAndPatchAll(typeof(ModMain));
         }
 
@@ -20,6 +20,7 @@ namespace DSPMod
             var plr = __instance;
 
             if (Input.GetKeyDown(KeyCode.Keypad0)) Semigod.FinishDyson();
+            if (Input.GetKeyDown(KeyCode.Keypad1)) CFG.Toggle("overdrive");
         }
     }
 }
