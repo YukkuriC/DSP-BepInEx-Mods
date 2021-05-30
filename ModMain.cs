@@ -21,6 +21,7 @@ namespace DSPMod
 
             if (Input.GetKeyDown(KeyCode.Keypad0)) Semigod.FinishDyson();
             if (Input.GetKeyDown(KeyCode.Keypad1)) CFG.Toggle("overdrive");
+            if (Input.GetKeyDown(KeyCode.Keypad2)) plr.SetSandCount(plr.sandCount + (int)1e6);
         }
     }
 }
