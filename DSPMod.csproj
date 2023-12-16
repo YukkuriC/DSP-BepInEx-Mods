@@ -7,8 +7,8 @@
     <ProjectGuid>{7DDBCC9F-C10F-40C1-BFDA-484FF0D14D8F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DSPMod</RootNamespace>
-    <AssemblyName>DSPMod</AssemblyName>
+    <RootNamespace>NoCheck</RootNamespace>
+    <AssemblyName>NoCheck</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
