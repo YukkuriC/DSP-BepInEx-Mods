@@ -14,8 +14,11 @@ namespace NoCheck
             Harmony.CreateAndPatchAll(typeof(ModMain));
         }
 
-        [HarmonyPrefix, HarmonyPatch(typeof(GameAbnormalityData_0925), nameof(GameAbnormalityData_0925.TriggerAbnormality))]
-        static bool NoTrigger()
+        [HarmonyPrefix]
+        [HarmonyPatch(typeof(AbnormalityLogic), nameof(AbnormalityLogic.Init))]
+        [HarmonyPatch(typeof(AbnormalityLogic), nameof(AbnormalityLogic.GameTick))]
+        [HarmonyPatch(typeof(GameAbnormalityData_0925), nameof(GameAbnormalityData_0925.TriggerAbnormality))]
+        static bool DoNothing()
         {
             return false;
         }
