@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using BepInEx;
 using HarmonyLib;
+using System.Collections.Generic;
 
 namespace DSPMod
 {
@@ -13,20 +14,35 @@ namespace DSPMod
             Harmony.CreateAndPatchAll(typeof(ModMain));
         }
 
-        [HarmonyPatch(typeof(PlayerAction_Build), "CheckBuildConditions")]
         [HarmonyPostfix]
-        static void UnlockEquator(PlayerAction_Build __instance, ref bool __result)
+        [HarmonyPatch(typeof(BuildTool_Click), "CheckBuildConditions")]
+        [HarmonyPatch(typeof(BuildTool_BlueprintPaste), "CheckBuildConditions")]
+        static void UnlockEquator(object __instance, ref bool __result)
         {
-            bool newResult = true;
-            foreach (var preview in __instance.buildPreviews)
+            var hasMidified = false;
+            var isBlueprint = __instance is BuildTool_BlueprintPaste;
+            IEnumerable<BuildPreview> data;
+            if (isBlueprint) data = (__instance as BuildTool_BlueprintPaste).bpPool;
+            else data = (__instance as BuildTool).buildPreviews;
+            foreach (var bp in data)
             {
-                if (preview.condition != EBuildCondition.Ok)
+                if (bp.condition == EBuildCondition.BuildInEquator)
                 {
-                    if (preview.condition == EBuildCondition.BuildInEquator) preview.condition = EBuildCondition.Ok;
-                    else newResult = false;
+                    hasMidified = true;
+                    bp.condition = EBuildCondition.Ok;
                 }
             }
-            __result = newResult;
+
+            if(hasMidified)
+            {
+                var newRet = true;
+                foreach (var bp in data) if(bp.condition!= EBuildCondition.Ok)
+                    {
+                        newRet = false;
+                        break;
+                    }
+                __result = newRet;
+            }
         }
     }
 }
