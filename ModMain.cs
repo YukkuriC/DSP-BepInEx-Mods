@@ -3,7 +3,6 @@ using System.Collections;
 using UnityEngine;
 using BepInEx;
 using HarmonyLib;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace DSPMod
@@ -64,6 +63,12 @@ namespace DSPMod
             text.text += '\r';
             // 更新外框大小
             go.sizeDelta = new Vector2(text.preferredWidth * 0.5f + 44f, text.preferredHeight * 0.5f + 14f);
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(ABN_MechaPosition), "OnGameTick")]
+        static bool NoCheck()
+        {
+            return false;
         }
     }
 
