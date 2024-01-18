@@ -9,39 +9,33 @@ namespace DSPMod
     [BepInProcess("DSPGAME.exe")]
     public partial class ModMain : BaseUnityPlugin
     {
-        const float fireAnimTime = 10f;
         const int loopInterval = 60;
-
-        static HashSet<int> firedLoop;
 
         void Start()
         {
-            firedLoop = new HashSet<int>();
             Harmony.CreateAndPatchAll(typeof(ModMain));
         }
 
-        [HarmonyPostfix, HarmonyPatch(typeof(EjectorComponent), "InternalUpdate")]
-        static void TryNext(ref EjectorComponent __instance, DysonSwarm swarm, AnimData[] animPool)
+        [HarmonyPrefix, HarmonyPatch(typeof(EjectorComponent), "InternalUpdate")]
+        static void FetchBeforeFireState(bool ___fired, ref bool __state)
         {
-            bool justFired = animPool[__instance.entityId].time == fireAnimTime;
+            __state = ___fired;
+        }
+
+        [HarmonyPostfix, HarmonyPatch(typeof(EjectorComponent), "InternalUpdate")]
+        static void TryNext(ref EjectorComponent __instance, DysonSwarm swarm, bool ___fired, bool __state)
+        {
+            bool justFired = (!__state) && ___fired;
             bool invalidOrbit = __instance.targetState == EjectorComponent.ETargetState.AngleLimit;
             bool isIdle = __instance.orbitId <= 0;
+            bool idleCheck = isIdle && (GameMain.gameTick + __instance.id) % loopInterval == 0;
 
-            // 标记开火状态
-            if (justFired) firedLoop.Add(__instance.id);
-
-            // 切换轨道
-            if (justFired || invalidOrbit || (isIdle && (GameMain.gameTick + __instance.id) % loopInterval == 0))
+            if (justFired || invalidOrbit || idleCheck)
             {
                 __instance.orbitId++;
                 if (__instance.orbitId >= swarm.orbitCursor)
                 {
-                    __instance.orbitId = 0; // 默认进入等待模式
-                    if (firedLoop.Contains(__instance.id))
-                    {
-                        __instance.orbitId = 1;
-                        firedLoop.Remove(__instance.id);
-                    }
+                    __instance.orbitId = justFired ? 1 : 0;
                 }
             }
         }
