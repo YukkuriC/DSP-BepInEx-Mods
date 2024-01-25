@@ -45,6 +45,28 @@ namespace DSPMod
             return !Input.GetKey(KeyCode.LeftAlt);
         }
 
+        [HarmonyPrefix, HarmonyPatch(typeof(UIStarmap), "OnTinderClick")]
+        static bool TinderWarp(int tinderEnemyId, SpaceSector ___spaceSector)
+        {
+            if (!Input.GetKey(KeyCode.LeftControl)) return true;
+
+            var dest = ___spaceSector.enemyPool[tinderEnemyId];
+            Helper.PlayerWarp(dest.pos, 0);
+
+            return !Input.GetKey(KeyCode.LeftAlt);
+        }
+
+        [HarmonyPrefix, HarmonyPatch(typeof(UIStarmap), "OnHiveClick")]
+        static bool HiveWarp(UIStarmapDFHive hive, SpaceSector ___spaceSector)
+        {
+            if (!Input.GetKey(KeyCode.LeftControl)) return true;
+
+            var dest = ___spaceSector.astros[hive.hive.hiveAstroId - 1000000].uPos;
+            Helper.PlayerWarp(dest, 20000);
+
+            return !Input.GetKey(KeyCode.LeftAlt);
+        }
+
         [HarmonyPostfix, HarmonyPatch(typeof(UIStarmap), "UpdateCursorView")]
         static void WarpTip(UIStarmap __instance, RectTransform ___cursorViewTrans, Text ___cursorViewText)
         {
