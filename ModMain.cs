@@ -45,12 +45,12 @@ namespace DSPMod
             return !Input.GetKey(KeyCode.LeftAlt);
         }
 
-        [HarmonyPrefix, HarmonyPatch(typeof(UIStarmap), "OnTinderClick")]
-        static bool TinderWarp(int tinderEnemyId, SpaceSector ___spaceSector)
+        [HarmonyPrefix, HarmonyPatch(typeof(UIStarmap), "OnEnemyClick")]
+        static bool TinderWarp(int enemyId, SpaceSector ___spaceSector)
         {
             if (!Input.GetKey(KeyCode.LeftControl)) return true;
 
-            var dest = ___spaceSector.enemyPool[tinderEnemyId];
+            var dest = ___spaceSector.enemyPool[enemyId];
             Helper.PlayerWarp(dest.pos, 0);
 
             return !Input.GetKey(KeyCode.LeftAlt);
