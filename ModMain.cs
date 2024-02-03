@@ -16,7 +16,7 @@ namespace DSPMod
             patcher.PatchAll();
         }
 
-        [HarmonyPatch(typeof(PlayerAction_Build), "CreatePrebuilds")]
+        [HarmonyPatch(typeof(PlayerAction_Build), "UpdateBuildTarget")]
         [HarmonyPrefix]
         static void AutoClickWhenRelease(PlayerAction_Build __instance)
         {
