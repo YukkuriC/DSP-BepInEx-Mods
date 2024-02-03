@@ -6,11 +6,14 @@ namespace DSPMod
 {
     [BepInPlugin(UID, NAME, VERSION)]
     [BepInProcess("DSPGAME.exe")]
+    [HarmonyPatch]
     public partial class ModMain : BaseUnityPlugin
     {
+        static Harmony patcher;
         void Start()
         {
-            Harmony.CreateAndPatchAll(typeof(ModMain));
+            patcher = new Harmony(UID);
+            patcher.PatchAll();
         }
     }
 }
