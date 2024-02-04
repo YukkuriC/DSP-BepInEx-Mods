@@ -62,7 +62,7 @@ namespace DSPMod
             if (!Input.GetKey(KeyCode.LeftControl)) return true;
 
             var dest = ___spaceSector.astros[hive.hive.hiveAstroId - 1000000].uPos;
-            Helper.PlayerWarp(dest, 20000);
+            Helper.PlayerWarp(dest, 8000);
 
             return !Input.GetKey(KeyCode.LeftAlt);
         }
