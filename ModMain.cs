@@ -51,7 +51,11 @@ namespace DSPMod
             if (!Input.GetKey(KeyCode.LeftControl)) return true;
 
             var dest = ___spaceSector.enemyPool[enemyId];
-            Helper.PlayerWarp(dest.pos, 0);
+
+            var pos = dest.pos;
+            if (dest.astroId != 0)
+                ___spaceSector.TransformFromAstro_ref(dest.astroId, out pos, ref dest.pos);
+            Helper.PlayerWarp(pos, 0);
 
             return !Input.GetKey(KeyCode.LeftAlt);
         }
