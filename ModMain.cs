@@ -29,7 +29,7 @@ namespace DSPMod
 
             var dest = planet.planet;
             if (dest == GameMain.localPlanet) return true;
-            Helper.PlayerWarp(dest.uPosition, dest.realRadius);
+            Helper.PlayerWarp(dest.uPosition, dest.realRadius, VectorLF3.zero);
 
             return !Input.GetKey(KeyCode.LeftAlt);
         }
@@ -40,7 +40,7 @@ namespace DSPMod
             if (!Input.GetKey(KeyCode.LeftControl)) return true;
 
             var dest = star.star;
-            Helper.PlayerWarp(dest.uPosition, dest.physicsRadius * 1.5f);
+            Helper.PlayerWarp(dest.uPosition, dest.physicsRadius * 1.5f, GameMain.data.mainPlayer.uVelocity);
 
             return !Input.GetKey(KeyCode.LeftAlt);
         }
@@ -55,7 +55,7 @@ namespace DSPMod
             var pos = dest.pos;
             if (dest.astroId != 0)
                 ___spaceSector.TransformFromAstro_ref(dest.astroId, out pos, ref dest.pos);
-            Helper.PlayerWarp(pos, 0);
+            Helper.PlayerWarp(pos, 0, new VectorLF3(dest.vel.x, dest.vel.y, dest.vel.z));
 
             return !Input.GetKey(KeyCode.LeftAlt);
         }
@@ -66,7 +66,7 @@ namespace DSPMod
             if (!Input.GetKey(KeyCode.LeftControl)) return true;
 
             var dest = ___spaceSector.astros[hive.hive.hiveAstroId - 1000000].uPos;
-            Helper.PlayerWarp(dest, 8000);
+            Helper.PlayerWarp(dest, 8000, GameMain.data.mainPlayer.uVelocity);
 
             return !Input.GetKey(KeyCode.LeftAlt);
         }
@@ -106,20 +106,21 @@ namespace DSPMod
             return new VectorLF3(randPos.x, randPos.y, randPos.z);
         }
 
-        public static void PlayerWarp(VectorLF3 center, float radius)
+        public static void PlayerWarp(VectorLF3 center, float radius, VectorLF3 velocity)
         {
             var target = center + Helper.RandSphere(radius);
             var plr = GameMain.data.mainPlayer;
             UIRoot.instance                                   // 随手薅的一个MonoBehavior_(:з」∠)_
-                .StartCoroutine(WarpFromGround(plr, target)); // 挂载传送协程
+                .StartCoroutine(WarpFromGround(plr, target, velocity)); // 挂载传送协程
         }
 
         // 协程传送
-        static IEnumerator WarpFromGround(Player plr, VectorLF3 target)
+        static IEnumerator WarpFromGround(Player plr, VectorLF3 target, VectorLF3 velocity)
         {
             var oldStar = GameMain.localStar;
 
             // 暴力挪transform
+            plr.uVelocity = velocity; // 使 player 与目标速度接近
             plr.uPosition = target;
             plr.transform.position = target;
             GameMain.data.DetermineLocalPlanet();
